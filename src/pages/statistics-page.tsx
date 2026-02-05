@@ -24,24 +24,14 @@ import {
 } from '@/components/ui/table'
 import { useScoreDistribution } from '@/hooks/use-students'
 import { PageLayout } from '@/components/layout/page-layout'
+import { StatisticsSkeleton } from '@/components/statistics'
+import { getSubjectLabel } from '@/lib/subjects'
 
 const COLORS = {
   excellent: '#22c55e',
   good: '#3b82f6',
   average: '#eab308',
   belowAverage: '#ef4444',
-}
-
-const SUBJECT_LABELS: Record<string, string> = {
-  Math: 'Math',
-  Physics: 'Physics',
-  Chemistry: 'Chemistry',
-  Biology: 'Biology',
-  Literature: 'Literature',
-  History: 'History',
-  Geography: 'Geography',
-  CivicEducation: 'Civic Ed.',
-  ForeignLanguage: 'Foreign Lang.',
 }
 
 function formatNumber(num: number): string {
@@ -65,7 +55,7 @@ export function StatisticsPage() {
   )
 
   const chartData = statistics.map((stat) => ({
-    subject: SUBJECT_LABELS[stat.subject] || stat.subject,
+    subject: getSubjectLabel(stat.subject),
     'Excellent (>=8)': stat.excellentCount,
     'Good (6.5-7.9)': stat.goodCount,
     'Average (5-6.4)': stat.averageCount,
@@ -76,7 +66,7 @@ export function StatisticsPage() {
     { name: 'Excellent', value: totals.excellent, color: COLORS.excellent },
     { name: 'Good', value: totals.good, color: COLORS.good },
     { name: 'Average', value: totals.average, color: COLORS.average },
-    { name: 'Below Average', value: totals.belowAverage, color: COLORS.belowAverage },
+    { name: 'Below Avg', value: totals.belowAverage, color: COLORS.belowAverage },
   ]
 
   return (
@@ -89,15 +79,17 @@ export function StatisticsPage() {
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="flex h-64 items-center justify-center">
-          <div className="text-muted-foreground">Loading statistics...</div>
-        </div>
-      ) : isError ? (
-        <div className="flex h-64 items-center justify-center">
-          <div className="text-destructive">Failed to load statistics</div>
-        </div>
-      ) : (
+      {isLoading && <StatisticsSkeleton />}
+
+      {isError && (
+        <Card className="border-destructive">
+          <CardContent className="pt-6">
+            <p className="text-destructive">Failed to load statistics</p>
+          </CardContent>
+        </Card>
+      )}
+
+      {!isLoading && !isError && (
         <>
           {/* Summary Cards */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -232,12 +224,11 @@ function DistributionPieChart({ data }: { data: { name: string; value: number; c
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={50}
-                outerRadius={80}
+                innerRadius={40}
+                outerRadius={65}
                 paddingAngle={2}
                 dataKey="value"
                 label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                labelLine={false}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
@@ -301,7 +292,7 @@ function StatisticsTable({
             {statistics.map((stat) => (
               <TableRow key={stat.subject}>
                 <TableCell className="font-medium">
-                  {SUBJECT_LABELS[stat.subject] || stat.subject}
+                  {getSubjectLabel(stat.subject)}
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {formatNumber(stat.excellentCount)}

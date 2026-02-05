@@ -1,4 +1,3 @@
-// API Response types (snake_case - matching backend response)
 export interface StudentScoreApiDto {
   registration_number: string;
   foreign_language_code: string | null;
@@ -23,7 +22,6 @@ export interface SubjectStatisticsApiDto {
   total_count: number;
 }
 
-// Frontend types (camelCase - for use in components)
 export interface StudentScoreDto {
   registrationNumber: string;
   foreignLanguageCode: string | null;

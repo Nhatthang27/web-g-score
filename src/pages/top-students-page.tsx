@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table'
 import { useTopStudents } from '@/hooks/use-students'
 import { PageLayout } from '@/components/layout/page-layout'
+import { TopStudentsSkeleton } from '@/components/top-students'
 import type { TopStudentDto } from '@/types/student.types'
 
 export function TopStudentsPage() {
@@ -28,28 +29,44 @@ export function TopStudentsPage() {
         </p>
       </div>
 
-      {/* Top 3 Cards */}
-      {students.length > 0 && (
-        <div className="grid gap-4 sm:grid-cols-3">
-          {students.slice(0, 3).map((student, index) => (
-            <TopStudentCard key={student.registrationNumber} student={student} isFirst={index === 0} />
-          ))}
-        </div>
-      )}
+      {isLoading ? (
+        <TopStudentsSkeleton />
+      ) : (
+        <>
+          {/* Top 3 Cards */}
+          {students.length > 0 && (
+            <div className="grid gap-4 sm:grid-cols-3">
+              {students.slice(0, 3).map((student, index) => (
+                <TopStudentCard key={student.registrationNumber} student={student} isFirst={index === 0} />
+              ))}
+            </div>
+          )}
 
-      {/* Leaderboard Table */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <IconTrophy className="size-5" />
-            Complete Leaderboard
-          </CardTitle>
-          <CardDescription>All top-performing students in Group A subjects</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <LeaderboardTable students={students} isLoading={isLoading} isError={isError} />
-        </CardContent>
-      </Card>
+          {/* Leaderboard Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <IconTrophy className="size-5" />
+                Complete Leaderboard
+              </CardTitle>
+              <CardDescription>All top-performing students in Group A subjects</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isError ? (
+                <div className="flex h-32 items-center justify-center">
+                  <div className="text-destructive">Failed to load data</div>
+                </div>
+              ) : students.length === 0 ? (
+                <div className="flex h-32 items-center justify-center">
+                  <div className="text-muted-foreground">No data available</div>
+                </div>
+              ) : (
+                <LeaderboardTable students={students} />
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </PageLayout>
   )
 }
@@ -119,39 +136,7 @@ function ScoreBox({ label, value }: { label: string; value: number }) {
   )
 }
 
-function LeaderboardTable({
-  students,
-  isLoading,
-  isError,
-}: {
-  students: TopStudentDto[]
-  isLoading: boolean
-  isError: boolean
-}) {
-  if (isLoading) {
-    return (
-      <div className="flex h-32 items-center justify-center">
-        <div className="text-muted-foreground">Loading...</div>
-      </div>
-    )
-  }
-
-  if (isError) {
-    return (
-      <div className="flex h-32 items-center justify-center">
-        <div className="text-destructive">Failed to load data</div>
-      </div>
-    )
-  }
-
-  if (students.length === 0) {
-    return (
-      <div className="flex h-32 items-center justify-center">
-        <div className="text-muted-foreground">No data available</div>
-      </div>
-    )
-  }
-
+function LeaderboardTable({ students }: { students: TopStudentDto[] }) {
   return (
     <Table>
       <TableHeader>

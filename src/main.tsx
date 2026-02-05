@@ -4,7 +4,6 @@ import { RouterProvider, createRouter } from '@tanstack/react-router'
 
 import * as TanStackQueryProvider from '@/integrations/tanstack-query/root-provider.tsx'
 
-// Import the generated route tree
 import { routeTree } from './routeTree.gen'
 
 import './styles.css'
@@ -12,7 +11,6 @@ import { NotFoundPage } from '@/components/ui/errors/not-found-page.tsx'
 import { InternalServerErrorPage } from '@/components/ui/errors/internal-server-error-page.tsx'
 import { Toaster } from "@/components/ui/sonner"
 import { Splash } from './components/ui/splash'
-// Create a new router instance
 
 const TanStackQueryProviderContext = TanStackQueryProvider.getContext()
 const router = createRouter({
@@ -29,14 +27,12 @@ const router = createRouter({
   defaultNotFoundComponent: () => <NotFoundPage />,
 })
 
-// Register the router instance for type safety
 declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router
   }
 }
 
-// Render the app
 const rootElement = document.getElementById('app')
 if (rootElement && !rootElement.innerHTML) {
   const root = ReactDOM.createRoot(rootElement)
